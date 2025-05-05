@@ -1,17 +1,17 @@
-// Home.jsx - improved dashboard with selection and visuals
+// Home.jsx - refreshed layout with clean Navbar, Footer, and Prediction logic
 import React, { useState } from "react";
 import { getPrediction } from "../api/stockService";
 import PredictionCard from "../components/PredictionCard";
-import StockChart from "../components/StockChart";
 import NavBar from "../components/NavBar";
 import Footer from "../components/Footer";
 
-const allTickers = ["AAPL", "GOOGL", "MSFT", "TSLA", "META", "NVDA"];
+const allTickers = ["AAPL", "GOOGL", "AMZN", "MSFT", "NVDA"];
 
 export default function Home() {
   const [prediction, setPrediction] = useState(null);
   const [selected, setSelected] = useState(allTickers.slice(0, 3));
   const [chartData, setChartData] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   const handleTickerChange = (ticker) => {
     setSelected((prev) =>
@@ -22,24 +22,26 @@ export default function Home() {
   };
 
   const handlePredict = async () => {
+    setLoading(true);
     const result = await getPrediction(
       selected,
       new Date().toISOString().split("T")[0]
     );
     setPrediction(result);
 
-    // Dummy chart data simulation
-    const dummyChart = result.rankings.map((r) => ({
+    const dummyChart = result.map((r) => ({
       date: new Date().toISOString().split("T")[0],
-      price: 100 + Math.random() * 10,
+      price: r.current_price,
       ticker: r.ticker,
     }));
     setChartData(dummyChart);
+    setLoading(false);
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <NavBar />
+
       <main className="flex-grow p-6 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Stock Analysis Dashboard</h1>
 
@@ -69,19 +71,21 @@ export default function Home() {
           Predict Best Stock
         </button>
 
-        {prediction && (
-          <>
-            <PredictionCard prediction={prediction} />
-            {selected.map((ticker) => (
-              <StockChart
-                key={ticker}
-                ticker={ticker}
-                data={chartData.filter((d) => d.ticker === ticker)}
-              />
-            ))}
-          </>
+        {loading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          </div>
+        )}
+
+        {!loading && prediction && (
+          <PredictionCard
+            prediction={prediction}
+            chartData={chartData}
+            selected={selected}
+          />
         )}
       </main>
+
       <Footer />
     </div>
   );
