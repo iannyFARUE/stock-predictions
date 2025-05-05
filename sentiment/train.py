@@ -1,13 +1,4 @@
-#!/usr/bin/env python3
-"""
-stock_news_sentiment_tool.py
 
-Single-script tool that:
-1) Fetches 30 days of stock & news data
-2) Trains sentiment-impact models (TF-IDF & expanded financial-keyword features + XGBoost)
-3) Saves the trained pipeline to disk
-4) Prompts for custom news input, applies negation-aware sentiment, and predicts impact
-"""
 import pickle
 import requests
 import pandas as pd

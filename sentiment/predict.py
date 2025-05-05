@@ -1,14 +1,5 @@
 #!/usr/bin/env python3
-"""
-use_pipeline.py
 
-Standalone script to load a pre-trained AAPL pipeline and interactively
-analyze news headlines. Contains all necessary code, no external imports.
-
-Usage:
-  python use_pipeline.py
-  # Type a headline and press ENTER to see analysis. 'exit' to quit.
-"""
 import pickle
 import re
 import numpy as np
@@ -23,7 +14,8 @@ from xgboost import XGBRegressor, XGBClassifier
 # ─── Configuration ───────────────────────────────────────────────────────
 NEWSAPI_KEY = "f22a6da5ffb24fd7ab7d51b12a3a1885"
 SYMBOL      = "AAPL"
-PIPELINE_FN = f"{SYMBOL}_pipeline.pkl"
+PIPELINE_FN = f"AAPL_pipeline.pkl"
+#PIPELINE_FN = f"{SYMBOL}_pipeline.pkl"
 # ──────────────────────────────────────────────────────────────────────────
 
 class StockNewsSentimentTool:
@@ -154,8 +146,7 @@ class StockNewsSentimentTool:
         # print results
         print("\nANALYSIS RESULTS:")
         print("----------------------------")
-        print(f"TF-IDF SENTIMENT SCORE:   {tfidf_score:+.4f}")
-        print(f"FINANCIAL CONTEXT SCORE:  {fin_score:+.4f}")
+        
         print(f"ADJUSTED SENTIMENT SCORE: {adj:+.4f} ({cat})")
         print(f"IMPACT ASSESSMENT:        {impact}")
         print(f"PREDICTED MOVEMENT:       {direction}\n")
