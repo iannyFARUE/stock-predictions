@@ -12,7 +12,10 @@ export default function NavBar() {
           Home
         </NavLink>
         <NavLink to="/home" className="hover:underline">
-          Dashboard
+          Technical Analysis
+        </NavLink>
+        <NavLink to="/sentiment" className="hover:underline">
+          Sentiment Analysis
         </NavLink>
       </div>
     </nav>

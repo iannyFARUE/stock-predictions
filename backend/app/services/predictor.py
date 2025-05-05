@@ -1,8 +1,9 @@
 import pickle
 import pandas as pd
-from app.schemas.stock import PredictionRequest, PredictionResponse
+from app.schemas.stock import PredictionRequest, PredictionResponse, SentimentRequest, SentimentResponse
 import datetime
 import yfinance as yf
+from app.services.sentiment_tool import StockNewsSentimentTool
 import ta
 import joblib
 import dill
@@ -97,3 +98,25 @@ def get_best_stock(data: PredictionRequest):
         responses.append(prediction_response)
     
     return responses
+
+def get_sentiment(sentiment: SentimentRequest):
+    NEWSAPI_KEY = "f22a6da5ffb24fd7ab7d51b12a3a1885"
+    SYMBOL      = "AAPL"
+    tool = StockNewsSentimentTool(NEWSAPI_KEY, SYMBOL)
+
+    tool.load_pipeline()
+    tool.fetch_stock(30)
+    tool.fetch_news(30)
+    tool.merge_data()
+    result = tool.predict_impact(sentiment.headline)
+
+    return SentimentResponse( 
+     tfidf_score=result["tfidf_score"],
+       financial_score=result['financial_score'], 
+       adjusted_score=result['adjusted_score'],
+       category=result['category'], 
+       impact=result['impact'],
+       predicted_return=result['predicted_return'],
+       predicted_movement=result['predicted_movement'],
+       terms=result['terms'],
+    )
