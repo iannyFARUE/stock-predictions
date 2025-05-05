@@ -16,7 +16,7 @@ warnings.filterwarnings('ignore')
 
 # ─── Configuration ───────────────────────────────────────────────────────
 NEWSAPI_KEY = "f22a6da5ffb24fd7ab7d51b12a3a1885"
-SYMBOL      = "AAPL"
+SYMBOL      = "MSFT"
 # ──────────────────────────────────────────────────────────────────────────
 
 class StockNewsSentimentTool:
