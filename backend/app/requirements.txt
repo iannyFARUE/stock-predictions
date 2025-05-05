@@ -8,3 +8,8 @@ matplotlib==3.10.1
 seaborn==0.13.2
 scikit-learn==1.6.1
 mlflow
+ta==0.11.0
+joblib==1.5.0
+dill==0.4.0
+vaderSentiment==3.3.2
+shap==0.47.2

@@ -6,8 +6,11 @@ class PredictionRequest(BaseModel):
     date: str # might add datetime
     
 class PredictionResponse(BaseModel):
-    recommended_ticker: str
-    expected_return: float
-    rankings: List[dict]
+    ticker: str
+    predicted_return: float
+    predicted_return_percent: float
+    current_price: float
+    prediction_date:str
+    recommendation: str
     
     
