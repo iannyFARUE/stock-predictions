@@ -8,8 +8,10 @@ from datetime import datetime, timedelta
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import StandardScaler
 import os
-
-# ─── Configuration ───────────────────────────────────────────────────────
+from sklearn.model_selection import RandomizedSearchCV, TimeSeriesSplit
+from sklearn.metrics import classification_report
+from xgboost import XGBClassifier
+# ─── Configuration ──────────────────────────────────────────────────────
 NEWSAPI_KEY = "f22a6da5ffb24fd7ab7d51b12a3a1885"
 SYMBOL      = "AAPL"
 PIPELINE_FN = f"AAPL_pipeline.pkl"
@@ -55,7 +57,7 @@ class StockNewsSentimentTool:
             'https://newsapi.org/v2/everything',
             params={
                 'q': f"{self.symbol} stock",
-                'from': start.strftime('%Y-%m-%d'),
+                'from': start.strftime('%Y-%m-%d'),   
                 'to': end.strftime('%Y-%m-%d'),
                 'language': 'en', 'sortBy': 'publishedAt',
                 'apiKey': self.api_key
@@ -109,6 +111,61 @@ class StockNewsSentimentTool:
             pip = pickle.load(f)
         pip['vectorizer'] = self.vectorizer
         self.pipeline = pip
+   
+
+def tune_classifier(self):
+    if self.merged_data is None:
+        raise RuntimeError("Merged data not available. Run fetch + merge first.")
+
+    # Prepare features and labels
+    feats = ['Open','High','Low','Close','Volume','return','sentiment']
+    X = self.merged_data[feats]
+    y = (self.merged_data['next_return'] > 0).astype(int)
+
+    # Time-based train-test split
+    split_index = int(len(X) * 0.8)
+    X_train, X_test = X.iloc[:split_index], X.iloc[split_index:]
+    y_train, y_test = y.iloc[:split_index], y.iloc[split_index:]
+
+    scaler = StandardScaler().fit(X_train)
+    X_train_s = scaler.transform(X_train)
+    X_test_s  = scaler.transform(X_test)
+
+    # Define param grid
+    param_dist = {
+        'n_estimators': [50, 100, 200],
+        'max_depth': [3, 4, 5, 6],
+        'learning_rate': [0.01, 0.05, 0.1, 0.2],
+        'subsample': [0.6, 0.8, 1.0],
+        'colsample_bytree': [0.6, 0.8, 1.0],
+        'scale_pos_weight': [1, 2, 3]  # useful for imbalance
+    }
+
+    model = XGBClassifier(random_state=42, use_label_encoder=False, eval_metric='logloss')
+
+    # Use TimeSeriesSplit
+    tscv = TimeSeriesSplit(n_splits=3)
+    search = RandomizedSearchCV(model, param_distributions=param_dist, 
+                                n_iter=10, scoring='f1', cv=tscv, verbose=1, random_state=42)
+
+    search.fit(X_train_s, y_train)
+
+    best_model = search.best_estimator_
+    preds = best_model.predict(X_test_s)
+    print("\nBest Parameters:", search.best_params_)
+    print("\nClassification Report:")
+    print(classification_report(y_test, preds, digits=2))
+
+    self.pipeline = {
+        'clf': best_model,
+        'scaler': scaler,
+        'vectorizer': self.vectorizer
+    }
+
+    with open(f'{self.symbol}_tuned_classifier.pkl', 'wb') as f:
+        pickle.dump(self.pipeline, f)
+    print(f"\nTuned classifier pipeline saved to {self.symbol}_tuned_classifier.pkl")
+
 
     def predict_impact(self, headline: str) -> dict:
         if self.pipeline is None:
