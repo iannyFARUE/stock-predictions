@@ -36,7 +36,7 @@ export default function PredictionCard({ prediction, chartData, selected }) {
         Top Recommendation: {top?.ticker || "N/A"}
       </h2>
       <p className="text-gray-700 mb-4">
-        📈 Expected Return (10d): {top?.predicted_return_percent?.toFixed(2)}%{" "}
+        📈 Expected Return (30d): {top?.predicted_return_percent?.toFixed(2)}%{" "}
         <br />
         💰 Current Price: ${top?.current_price?.toFixed(2)} <br />
         📅 Date: {top?.prediction_date} <br />✅ Recommendation:

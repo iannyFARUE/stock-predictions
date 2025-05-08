@@ -68,7 +68,7 @@ export default function SentimentPage() {
             <h2 className="text-xl font-bold mb-4">
               📊 Sentiment Analysis Result
             </h2>
-            <p>
+            {/* <p>
               <strong>TF-IDF Score:</strong> {sentimentImpact.tfidf_score}
             </p>
             <p>
@@ -77,7 +77,7 @@ export default function SentimentPage() {
             </p>
             <p>
               <strong>Adjusted Score:</strong> {sentimentImpact.adjusted_score}
-            </p>
+            </p> */}
             <p>
               <strong>Category:</strong>
               <span
@@ -98,10 +98,10 @@ export default function SentimentPage() {
                 {sentimentImpact.impact}
               </span>
             </p>
-            <p>
+            {/* <p>
               <strong>Predicted Return:</strong>{" "}
               {(sentimentImpact.predicted_return * 100).toFixed(2)}%
-            </p>
+            </p> */}
             <p>
               <strong>Predicted Movement:</strong>
               <span
@@ -113,7 +113,7 @@ export default function SentimentPage() {
               </span>
             </p>
 
-            {sentimentImpact.terms?.length > 0 && (
+            {/* {sentimentImpact.terms?.length > 0 && (
               <div className="mt-4">
                 <h3 className="font-semibold">Matched Terms:</h3>
                 <ul className="list-disc pl-5">
@@ -122,7 +122,7 @@ export default function SentimentPage() {
                   ))}
                 </ul>
               </div>
-            )}
+            )} */}
           </div>
         )}
       </main>

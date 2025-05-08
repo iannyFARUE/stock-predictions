@@ -10,12 +10,12 @@ import dill
 from app.core.constants import TICKERS
 import os
 
-def load_data(start_date:datetime.datetime, end_data:str):
+def load_data(start_date:datetime.date, end_data:datetime.date):
     return yf.download(TICKERS, start=start_date, end=end_data, group_by='ticker', auto_adjust=True)
     
 def prepare_stock_features(days:int = 60):
-    END_DATE = '2020-10-30'
-    START_DATE = datetime.datetime.strptime(END_DATE, "%Y-%m-%d") - datetime.timedelta(days=days)
+    END_DATE = datetime.datetime.today().date()
+    START_DATE = END_DATE - datetime.timedelta(days=60)
     data = load_data(START_DATE,END_DATE)
     dfs = []
     for ticker in data.columns.levels[0]:
@@ -82,10 +82,11 @@ def get_best_stock(data: PredictionRequest):
     # --- 10. Get Latest Date and Top 3 Stocks ---
     latest_date = latest_features['Date'].max()
     latest_data = latest_features[latest_features['Date'] == latest_date]
-    latest_data['recommendation'] = latest_data['predicted_future_return'].apply(lambda x: 'Buy' if x > 0.08 else 'Sell' if x < -0.08 else 'Do not Enter')
+    top_3 = latest_data.sort_values('predicted_future_return', ascending=False)
+    top_3['recommendation'] = top_3['predicted_future_return'].apply(lambda x: 'Buy' if x > 0.03 else 'Sell' if x < -0.03 else 'Do not Enter')
     
     responses = []
-    for _, row in latest_data.iterrows():
+    for _, row in top_3.iterrows():
         current_price = row.get('Close')
         prediction_response = PredictionResponse(
             ticker=row['ticker'],
